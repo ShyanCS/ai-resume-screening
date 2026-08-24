@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# --- Local project documents (synopsis etc.) ---
+*.docx
+
 # --- Java / Maven ---
 target/
 *.class
