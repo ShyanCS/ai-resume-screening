@@ -1,0 +1,45 @@
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Java / Maven ---
+target/
+*.class
+*.jar
+!**/mvnw
+!**/mvnw.cmd
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+hs_err_pid*
+replay_pid*
+
+# --- Node / Vite ---
+node_modules/
+dist/
+coverage/
+*.local
+npm-debug.log*
+yarn-error.log*
+
+# --- IDEs ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Docker / local volumes ---
+infra/volumes/
+
+# --- Test / tooling artifacts ---
+.jacoco/
+*.exec
+.eslintcache
+.vitest-cache/
