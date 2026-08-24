@@ -28,4 +28,10 @@ export default tseslint.config(
     },
   },
   prettier,
+  {
+    files: ['src/lib/logger.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 )
