@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  api:
+    name: API - format, tests, coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: hiresense
+          POSTGRES_USER: hiresense
+          POSTGRES_PASSWORD: hiresense
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U hiresense"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Verify (spotless check, unit + migration integrity tests, jacoco gate)
+        working-directory: apps/api
+        run: ./mvnw -B verify
+
+  web:
+    name: Web - audit, lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Dependency audit
+        working-directory: apps/web
+        run: npm audit --audit-level=high
+
+      - name: Lint
+        working-directory: apps/web
+        run: npm run lint
+
+      - name: Format check
+        working-directory: apps/web
+        run: npm run format:check
+
+      - name: Test with coverage thresholds
+        working-directory: apps/web
+        run: npm run test:coverage
+
+      - name: Build (tsc typecheck + vite bundle)
+        working-directory: apps/web
+        run: npm run build

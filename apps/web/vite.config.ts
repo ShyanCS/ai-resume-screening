@@ -9,5 +9,15 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: false,
     pool: 'threads',
+    coverage: {
+      provider: 'v8',
+      exclude: ['src/main.tsx', 'src/test/**', '**/*.d.ts'],
+      thresholds: {
+        lines: 70,
+        statements: 70,
+        functions: 70,
+        branches: 60,
+      },
+    },
   },
 })
