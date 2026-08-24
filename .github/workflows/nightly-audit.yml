@@ -21,6 +21,18 @@ jobs:
           java-version: "21"
           cache: maven
 
+      - name: Compute NVD cache week key
+        id: nvd-week
+        run: echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache dependency-check NVD data (weekly rollover, incremental updates)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: dependency-check-nvd-${{ runner.os }}-${{ steps.nvd-week.outputs.week }}
+          restore-keys: |
+            dependency-check-nvd-${{ runner.os }}-
+
       - name: Run dependency-check
         working-directory: apps/api
         run: >-
