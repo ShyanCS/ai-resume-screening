@@ -21,9 +21,10 @@ export default tseslint.config(
     },
     rules: {
       'no-console': 'error',
+      'no-unused-vars': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'react-refresh/only-export-components': 'off',
     },
   },
