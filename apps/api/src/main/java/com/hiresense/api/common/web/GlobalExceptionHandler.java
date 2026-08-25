@@ -52,6 +52,11 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
     }
 
+    @ExceptionHandler(com.hiresense.api.auth.email.InvalidEmailTokenException.class)
+    public ProblemDetail handleInvalidEmailToken(com.hiresense.api.auth.email.InvalidEmailTokenException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public void rethrowAccessDenied(AccessDeniedException ex) {
         throw ex;

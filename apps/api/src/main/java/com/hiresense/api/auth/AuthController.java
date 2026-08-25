@@ -7,7 +7,9 @@ import com.hiresense.api.auth.dto.LoginResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.RefreshRequest;
+import com.hiresense.api.auth.dto.ResendVerificationRequest;
 import com.hiresense.api.auth.dto.UserResponse;
+import com.hiresense.api.auth.dto.VerifyEmailRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +55,17 @@ public class AuthController {
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
         authService.logout(request.refreshToken());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        authService.verifyEmail(request.token());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        authService.resendVerification(request.email());
+        return ResponseEntity.accepted().build();
     }
 }

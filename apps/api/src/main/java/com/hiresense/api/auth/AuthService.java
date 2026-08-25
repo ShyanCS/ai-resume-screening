@@ -8,6 +8,9 @@ import com.hiresense.api.auth.dto.OrganizationResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.UserResponse;
+import com.hiresense.api.auth.email.EmailSender;
+import com.hiresense.api.auth.email.EmailTokenPurpose;
+import com.hiresense.api.auth.email.EmailTokenService;
 import com.hiresense.api.auth.jwt.JwtService;
 import com.hiresense.api.auth.token.RefreshTokenService;
 import com.hiresense.api.org.OrgMember;
@@ -18,7 +21,9 @@ import com.hiresense.api.org.OrganizationRepository;
 import com.hiresense.api.user.PlatformRole;
 import com.hiresense.api.user.User;
 import com.hiresense.api.user.UserRepository;
+import java.time.Duration;
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +39,10 @@ public class AuthService {
     private final OrgMemberRepository orgMemberRepository;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final EmailTokenService emailTokenService;
+    private final EmailSender emailSender;
+    private final String baseUrl;
+    private final long emailVerificationTtlHours;
 
     public AuthService(
             UserRepository userRepository,
@@ -41,13 +50,21 @@ public class AuthService {
             OrganizationRepository organizationRepository,
             OrgMemberRepository orgMemberRepository,
             JwtService jwtService,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            EmailTokenService emailTokenService,
+            EmailSender emailSender,
+            @Value("${app.base-url:http://localhost:3000}") String baseUrl,
+            @Value("${app.auth.email-verification-ttl-hours:24}") long emailVerificationTtlHours) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.orgMemberRepository = orgMemberRepository;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.emailTokenService = emailTokenService;
+        this.emailSender = emailSender;
+        this.baseUrl = baseUrl;
+        this.emailVerificationTtlHours = emailVerificationTtlHours;
     }
 
     @Transactional
@@ -95,7 +112,35 @@ public class AuthService {
                 request.fullName().trim(),
                 PlatformRole.CANDIDATE);
         User saved = userRepository.save(user);
+        sendVerificationEmail(saved);
         return new UserResponse(saved.getId(), saved.getEmail(), saved.getFullName(), saved.getPlatformRole());
+    }
+
+    public void sendVerificationEmail(User user) {
+        String rawToken = emailTokenService.issue(
+                user, EmailTokenPurpose.EMAIL_VERIFICATION, Duration.ofHours(emailVerificationTtlHours));
+        emailSender.send(
+                user.getEmail(),
+                "Verify your HireSense account",
+                "Welcome to HireSense!\n\n"
+                        + "Confirm your email address:\n"
+                        + baseUrl + "/verify-email?token=" + rawToken + "\n\n"
+                        + "If you did not sign up, you can ignore this email.");
+    }
+
+    @Transactional
+    public void verifyEmail(String rawToken) {
+        User user = emailTokenService.consume(rawToken, EmailTokenPurpose.EMAIL_VERIFICATION);
+        user.setEmailVerified(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void resendVerification(String email) {
+        userRepository
+                .findByEmail(normalizeEmail(email))
+                .filter(user -> !user.isEmailVerified())
+                .ifPresent(this::sendVerificationEmail);
     }
 
     @Transactional
@@ -128,6 +173,8 @@ public class AuthService {
         userRepository.save(adminUser);
 
         orgMemberRepository.save(new OrgMember(organization, adminUser, OrgRole.ORG_ADMIN));
+
+        sendVerificationEmail(adminUser);
 
         return new OrganizationSignupResponse(
                 new OrganizationResponse(organization.getId(), organization.getName(), organization.getSlug()),

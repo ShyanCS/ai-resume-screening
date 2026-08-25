@@ -11,11 +11,17 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
 app:
+  base-url: ${APP_BASE_URL:http://localhost:3000}
   jwt:
     access-ttl-seconds: 900
   auth:
     refresh-ttl-days: 30
+    email-verification-ttl-hours: 24
+    password-reset-ttl-minutes: 30
 server:
   port: 8080
 management:
