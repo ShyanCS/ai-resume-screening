@@ -22,11 +22,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/api/v1/health", "/actuator/health", "/actuator/info")
-                                .permitAll()
-                                .anyRequest()
-                                .denyAll());
+                .authorizeHttpRequests(auth -> auth.requestMatchers(
+                                "/api/v1/health", "/api/v1/auth/**", "/actuator/health", "/actuator/info")
+                        .permitAll()
+                        .anyRequest()
+                        .denyAll());
         return http.build();
     }
 }
