@@ -44,6 +44,14 @@ public class EmailToken {
     @Column(name = "used_at")
     private Instant usedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "org_id")
+    private com.hiresense.api.org.Organization organization;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invited_role", length = 20)
+    private com.hiresense.api.org.OrgRole invitedRole;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -53,6 +61,18 @@ public class EmailToken {
         this.purpose = purpose;
         this.expiresAt = expiresAt;
         this.createdAt = Instant.now();
+    }
+
+    public EmailToken(
+            User user,
+            String tokenHash,
+            EmailTokenPurpose purpose,
+            Instant expiresAt,
+            com.hiresense.api.org.Organization organization,
+            com.hiresense.api.org.OrgRole invitedRole) {
+        this(user, tokenHash, purpose, expiresAt);
+        this.organization = organization;
+        this.invitedRole = invitedRole;
     }
 
     public boolean isExpired() {

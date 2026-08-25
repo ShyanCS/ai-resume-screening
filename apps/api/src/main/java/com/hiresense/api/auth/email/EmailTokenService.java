@@ -26,15 +26,38 @@ public class EmailTokenService {
 
     @Transactional
     public String issue(User user, EmailTokenPurpose purpose, Duration ttl) {
+        return issueInContext(user, purpose, ttl, null, null);
+    }
+
+    @Transactional
+    public String issueInvite(
+            User user,
+            Duration ttl,
+            com.hiresense.api.org.Organization organization,
+            com.hiresense.api.org.OrgRole invitedRole) {
+        return issueInContext(user, EmailTokenPurpose.RECRUITER_INVITE, ttl, organization, invitedRole);
+    }
+
+    private String issueInContext(
+            User user,
+            EmailTokenPurpose purpose,
+            Duration ttl,
+            com.hiresense.api.org.Organization organization,
+            com.hiresense.api.org.OrgRole invitedRole) {
         byte[] bytes = new byte[TOKEN_BYTES];
         secureRandom.nextBytes(bytes);
         String raw = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-        repository.save(new EmailToken(user, hash(raw), purpose, Instant.now().plus(ttl)));
+        repository.save(new EmailToken(user, hash(raw), purpose, Instant.now().plus(ttl), organization, invitedRole));
         return raw;
     }
 
     @Transactional
     public User consume(String rawToken, EmailTokenPurpose purpose) {
+        return consumeToken(rawToken, purpose).getUser();
+    }
+
+    @Transactional
+    public EmailToken consumeToken(String rawToken, EmailTokenPurpose purpose) {
         if (rawToken == null || rawToken.isBlank()) {
             throw new InvalidEmailTokenException();
         }
@@ -43,7 +66,7 @@ public class EmailTokenService {
             throw new InvalidEmailTokenException();
         }
         token.markUsed();
-        return token.getUser();
+        return token;
     }
 
     static String hash(String rawToken) {
