@@ -32,6 +32,11 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Email already registered");
     }
 
+    @ExceptionHandler(com.hiresense.api.auth.SlugAlreadyTakenException.class)
+    public ProblemDetail handleSlugTaken(com.hiresense.api.auth.SlugAlreadyTakenException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public void rethrowAccessDenied(AccessDeniedException ex) {
         throw ex;

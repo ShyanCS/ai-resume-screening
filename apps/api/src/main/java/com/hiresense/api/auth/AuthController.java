@@ -1,6 +1,8 @@
 package com.hiresense.api.auth;
 
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
+import com.hiresense.api.auth.dto.OrganizationSignupRequest;
+import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,13 @@ public class AuthController {
     @PostMapping("/register/candidate")
     public ResponseEntity<UserResponse> registerCandidate(@Valid @RequestBody CandidateSignupRequest request) {
         UserResponse response = authService.registerCandidate(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/register/organization")
+    public ResponseEntity<OrganizationSignupResponse> registerOrganization(
+            @Valid @RequestBody OrganizationSignupRequest request) {
+        OrganizationSignupResponse response = authService.registerOrganization(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
