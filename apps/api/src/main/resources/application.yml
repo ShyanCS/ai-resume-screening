@@ -11,6 +11,11 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
+app:
+  jwt:
+    access-ttl-seconds: 900
+  auth:
+    refresh-ttl-days: 30
 server:
   port: 8080
 management:

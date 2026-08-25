@@ -1,5 +1,6 @@
 package com.hiresense.api.auth;
 
+import com.hiresense.api.auth.dto.AuthTokensResponse;
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
 import com.hiresense.api.auth.dto.LoginRequest;
 import com.hiresense.api.auth.dto.LoginResponse;
@@ -8,6 +9,7 @@ import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.UserResponse;
 import com.hiresense.api.auth.jwt.JwtService;
+import com.hiresense.api.auth.token.RefreshTokenService;
 import com.hiresense.api.org.OrgMember;
 import com.hiresense.api.org.OrgMemberRepository;
 import com.hiresense.api.org.OrgRole;
@@ -31,21 +33,24 @@ public class AuthService {
     private final OrganizationRepository organizationRepository;
     private final OrgMemberRepository orgMemberRepository;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             OrganizationRepository organizationRepository,
             OrgMemberRepository orgMemberRepository,
-            JwtService jwtService) {
+            JwtService jwtService,
+            RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.orgMemberRepository = orgMemberRepository;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         String normalizedEmail = normalizeEmail(request.email());
         User user = userRepository
@@ -57,9 +62,25 @@ public class AuthService {
         }
         String accessToken = jwtService.issueAccessToken(
                 user.getId(), user.getEmail(), user.getPlatformRole().name());
+        String refreshToken = refreshTokenService.issue(user);
         return new LoginResponse(
                 accessToken,
+                refreshToken,
                 new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getPlatformRole()));
+    }
+
+    @Transactional
+    public AuthTokensResponse refresh(String refreshToken) {
+        User user = refreshTokenService.rotate(refreshToken);
+        String accessToken = jwtService.issueAccessToken(
+                user.getId(), user.getEmail(), user.getPlatformRole().name());
+        String newRefreshToken = refreshTokenService.issue(user);
+        return new AuthTokensResponse(accessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public void logout(String refreshToken) {
+        refreshTokenService.revoke(refreshToken);
     }
 
     @Transactional

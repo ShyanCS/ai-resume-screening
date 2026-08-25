@@ -112,12 +112,22 @@ class MigrationIntegrityTest {
     }
 
     @Test
-    void allMigrationsAppliedSuccessfully() throws SQLException {
+    void allMigrationsAppliedWithoutFailures() throws SQLException {
         try (PreparedStatement ps =
                 connection.prepareStatement("SELECT COUNT(*) FROM flyway_schema_history WHERE success = FALSE")) {
             ResultSet rs = ps.executeQuery();
             rs.next();
             assertEquals(0, rs.getInt(1));
+        }
+    }
+
+    @Test
+    void refreshTokenHashColumnIsVariableLength() throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT data_type FROM information_schema.columns"
+                + " WHERE table_name = 'refresh_tokens' AND column_name = 'token_hash'")) {
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            assertEquals("character varying", rs.getString(1));
         }
     }
 

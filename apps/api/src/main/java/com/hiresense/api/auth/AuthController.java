@@ -1,10 +1,12 @@
 package com.hiresense.api.auth;
 
+import com.hiresense.api.auth.dto.AuthTokensResponse;
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
 import com.hiresense.api.auth.dto.LoginRequest;
 import com.hiresense.api.auth.dto.LoginResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
+import com.hiresense.api.auth.dto.RefreshRequest;
 import com.hiresense.api.auth.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,5 +42,16 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/token/refresh")
+    public AuthTokensResponse refresh(@Valid @RequestBody RefreshRequest request) {
+        return authService.refresh(request.refreshToken());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
+        authService.logout(request.refreshToken());
+        return ResponseEntity.noContent().build();
     }
 }
