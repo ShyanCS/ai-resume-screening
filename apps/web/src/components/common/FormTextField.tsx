@@ -7,6 +7,7 @@ interface FormTextFieldProps {
   type?: string
   value: string
   error?: string
+  helperText?: string
   onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -16,6 +17,7 @@ export function FormTextField({
   type = 'text',
   value,
   error,
+  helperText,
   onChange,
 }: FormTextFieldProps) {
   return (
@@ -28,7 +30,7 @@ export function FormTextField({
       value={value}
       onChange={onChange}
       error={Boolean(error)}
-      helperText={error}
+      helperText={error ?? helperText}
     />
   )
 }

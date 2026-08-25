@@ -18,7 +18,9 @@ afterEach(() => {
 
 describe('CandidateSignupPage', () => {
   it('submits valid data to the signup endpoint and shows confirmation', async () => {
-    const fetchMock = vi.fn(async () => jsonResponse(201, { id: 1 }))
+        const fetchMock = vi.fn(async (_url: string, _init?: { body?: string }) =>
+            jsonResponse(201, { id: 1 }),
+        )
     vi.stubGlobal('fetch', fetchMock)
     const user = userEvent.setup()
 

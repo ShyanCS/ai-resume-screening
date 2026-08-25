@@ -58,7 +58,7 @@ export function OrganizationSignupPage() {
   }
 
   return (
-    <Box maxWidth={480} mx="auto" mt={8}>
+    <Box sx={{ maxWidth: 480, mx: 'auto', mt: 8 }}>
       <Paper sx={{ p: 4 }}>
         <Typography variant="h5" gutterBottom>
           Register your organization
@@ -70,7 +70,7 @@ export function OrganizationSignupPage() {
         ) : (
           <>
             {submitError ? (
-              <Box component="div" color="error.main" mb={1}>
+              <Box component="div" sx={{ color: 'error.main', mb: 1 }}>
                 {submitError}
               </Box>
             ) : null}

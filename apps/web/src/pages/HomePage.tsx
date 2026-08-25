@@ -12,7 +12,7 @@ export function HomePage() {
   }
 
   return (
-    <Box maxWidth={720} mx="auto" mt={8}>
+    <Box sx={{ maxWidth: 720, mx: 'auto', mt: 8 }}>
       <Typography variant="h4" gutterBottom>
         HireSense
       </Typography>

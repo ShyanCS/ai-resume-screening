@@ -41,7 +41,7 @@ export function CandidateSignupPage() {
   }
 
   return (
-    <Box maxWidth={420} mx="auto" mt={8}>
+    <Box sx={{ maxWidth: 420, mx: 'auto', mt: 8 }}>
       <Paper sx={{ p: 4 }}>
         <Typography variant="h5" gutterBottom>
           Create your candidate account
@@ -53,7 +53,7 @@ export function CandidateSignupPage() {
         ) : (
           <>
             {submitError ? (
-              <Box component="div" color="error.main" mb={1}>
+              <Box component="div" sx={{ color: 'error.main', mb: 1 }}>
                 {submitError}
               </Box>
             ) : null}

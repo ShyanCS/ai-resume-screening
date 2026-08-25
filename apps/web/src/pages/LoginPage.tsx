@@ -41,7 +41,7 @@ export function LoginPage() {
   }
 
   return (
-    <Box maxWidth={420} mx="auto" mt={8}>
+    <Box sx={{ maxWidth: 420, mx: 'auto', mt: 8 }}>
       <Paper sx={{ p: 4 }}>
         <Typography variant="h5" gutterBottom>
           Sign in to HireSense

@@ -48,7 +48,7 @@ describe('LoginPage', () => {
   })
 
   it('submits credentials, stores session, and navigates home on success', async () => {
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn(async (_url: string) =>
       jsonResponse(200, {
         accessToken: 'a1',
         refreshToken: 'r1',
