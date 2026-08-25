@@ -1,6 +1,16 @@
 spring:
   application:
     name: hiresense-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/hiresense}
+    username: ${SPRING_DATASOURCE_USERNAME:hiresense}
+    password: ${SPRING_DATASOURCE_PASSWORD:hiresense}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
 server:
   port: 8080
 management:
