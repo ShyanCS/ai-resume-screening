@@ -2,12 +2,14 @@ package com.hiresense.api.auth;
 
 import com.hiresense.api.auth.dto.AuthTokensResponse;
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
+import com.hiresense.api.auth.dto.ForgotPasswordRequest;
 import com.hiresense.api.auth.dto.LoginRequest;
 import com.hiresense.api.auth.dto.LoginResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.RefreshRequest;
 import com.hiresense.api.auth.dto.ResendVerificationRequest;
+import com.hiresense.api.auth.dto.ResetPasswordRequest;
 import com.hiresense.api.auth.dto.UserResponse;
 import com.hiresense.api.auth.dto.VerifyEmailRequest;
 import jakarta.validation.Valid;
@@ -67,5 +69,17 @@ public class AuthController {
     public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
         authService.resendVerification(request.email());
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.noContent().build();
     }
 }

@@ -43,6 +43,7 @@ public class AuthService {
     private final EmailSender emailSender;
     private final String baseUrl;
     private final long emailVerificationTtlHours;
+    private final long passwordResetTtlMinutes;
 
     public AuthService(
             UserRepository userRepository,
@@ -54,7 +55,8 @@ public class AuthService {
             EmailTokenService emailTokenService,
             EmailSender emailSender,
             @Value("${app.base-url:http://localhost:3000}") String baseUrl,
-            @Value("${app.auth.email-verification-ttl-hours:24}") long emailVerificationTtlHours) {
+            @Value("${app.auth.email-verification-ttl-hours:24}") long emailVerificationTtlHours,
+            @Value("${app.auth.password-reset-ttl-minutes:30}") long passwordResetTtlMinutes) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
@@ -65,6 +67,7 @@ public class AuthService {
         this.emailSender = emailSender;
         this.baseUrl = baseUrl;
         this.emailVerificationTtlHours = emailVerificationTtlHours;
+        this.passwordResetTtlMinutes = passwordResetTtlMinutes;
     }
 
     @Transactional
@@ -141,6 +144,29 @@ public class AuthService {
                 .findByEmail(normalizeEmail(email))
                 .filter(user -> !user.isEmailVerified())
                 .ifPresent(this::sendVerificationEmail);
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        userRepository.findByEmail(normalizeEmail(email)).ifPresent(user -> {
+            String rawToken = emailTokenService.issue(
+                    user, EmailTokenPurpose.PASSWORD_RESET, Duration.ofMinutes(passwordResetTtlMinutes));
+            emailSender.send(
+                    user.getEmail(),
+                    "Reset your HireSense password",
+                    "A password reset was requested for your account.\n\n"
+                            + "Set a new password:\n"
+                            + baseUrl + "/reset-password?token=" + rawToken + "\n\n"
+                            + "If this wasn't you, ignore this email and your password stays unchanged.");
+        });
+    }
+
+    @Transactional
+    public void resetPassword(String rawToken, String newPassword) {
+        User user = emailTokenService.consume(rawToken, EmailTokenPurpose.PASSWORD_RESET);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        refreshTokenService.revokeAllForUser(user.getId());
     }
 
     @Transactional
