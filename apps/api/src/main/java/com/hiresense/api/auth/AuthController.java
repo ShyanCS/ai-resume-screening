@@ -1,6 +1,8 @@
 package com.hiresense.api.auth;
 
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
+import com.hiresense.api.auth.dto.LoginRequest;
+import com.hiresense.api.auth.dto.LoginResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.UserResponse;
@@ -33,5 +35,10 @@ public class AuthController {
             @Valid @RequestBody OrganizationSignupRequest request) {
         OrganizationSignupResponse response = authService.registerOrganization(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }

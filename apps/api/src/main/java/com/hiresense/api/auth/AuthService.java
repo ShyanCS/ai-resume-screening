@@ -1,10 +1,13 @@
 package com.hiresense.api.auth;
 
 import com.hiresense.api.auth.dto.CandidateSignupRequest;
+import com.hiresense.api.auth.dto.LoginRequest;
+import com.hiresense.api.auth.dto.LoginResponse;
 import com.hiresense.api.auth.dto.OrganizationResponse;
 import com.hiresense.api.auth.dto.OrganizationSignupRequest;
 import com.hiresense.api.auth.dto.OrganizationSignupResponse;
 import com.hiresense.api.auth.dto.UserResponse;
+import com.hiresense.api.auth.jwt.JwtService;
 import com.hiresense.api.org.OrgMember;
 import com.hiresense.api.org.OrgMemberRepository;
 import com.hiresense.api.org.OrgRole;
@@ -27,16 +30,36 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final OrganizationRepository organizationRepository;
     private final OrgMemberRepository orgMemberRepository;
+    private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             OrganizationRepository organizationRepository,
-            OrgMemberRepository orgMemberRepository) {
+            OrgMemberRepository orgMemberRepository,
+            JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.orgMemberRepository = orgMemberRepository;
+        this.jwtService = jwtService;
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        String normalizedEmail = normalizeEmail(request.email());
+        User user = userRepository
+                .findByEmail(normalizedEmail)
+                .filter(User::isEnabled)
+                .orElseThrow(InvalidCredentialsException::new);
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException();
+        }
+        String accessToken = jwtService.issueAccessToken(
+                user.getId(), user.getEmail(), user.getPlatformRole().name());
+        return new LoginResponse(
+                accessToken,
+                new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getPlatformRole()));
     }
 
     @Transactional

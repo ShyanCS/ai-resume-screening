@@ -37,6 +37,16 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ProblemDetail handleBadCredentials() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
+
+    @ExceptionHandler(com.hiresense.api.auth.InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials() {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public void rethrowAccessDenied(AccessDeniedException ex) {
         throw ex;
