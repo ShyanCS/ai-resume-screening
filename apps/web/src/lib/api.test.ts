@@ -4,9 +4,9 @@ import { ApiError, api, clearStoredAuth, loadStoredAuth, saveStoredAuth } from '
 type FetchInit = { headers?: Record<string, string>; body?: string; method?: string }
 
 function fetchMock(handler: (_url: string, _init?: FetchInit) => Response | Promise<Response>) {
-    const fn = vi.fn(async (url: string, init?: FetchInit) => handler(url, init))
-    vi.stubGlobal('fetch', fn)
-    return fn
+  const fn = vi.fn(async (url: string, init?: FetchInit) => handler(url, init))
+  vi.stubGlobal('fetch', fn)
+  return fn
 }
 
 function jsonResponse(status: number, body: unknown) {
@@ -73,7 +73,7 @@ describe('api request', () => {
   it('refreshes once on 401 and retries the original request', async () => {
     const fetchFn = fetchMock(() => jsonResponse(500, {}))
     let callsToJobs = 0
-        fetchFn.mockImplementation(async (url: string, init?: FetchInit) => {
+    fetchFn.mockImplementation(async (url: string, init?: FetchInit) => {
       if (url.endsWith('/api/v1/auth/token/refresh')) {
         return jsonResponse(200, { accessToken: 'access-2', refreshToken: 'refresh-2' })
       }
