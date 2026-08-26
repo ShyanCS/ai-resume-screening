@@ -23,18 +23,6 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
-      minio:
-        image: bitnami/minio:latest
-        env:
-          MINIO_ROOT_USER: hiresense
-          MINIO_ROOT_PASSWORD: hiresense-secret
-        ports:
-          - "9000:9000"
-        options: >-
-          --health-cmd "mc ready local || curl -fsS http://localhost:9000/minio/health/live"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 12
     steps:
       - uses: actions/checkout@v4
 
@@ -43,6 +31,13 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+
+      - name: Start MinIO for storage tests
+        run: |
+          docker run -d --name hiresense-minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=hiresense -e MINIO_ROOT_PASSWORD=hiresense-secret \
+            minio/minio:latest server /data
+          timeout 60 sh -c 'until curl -fsS http://localhost:9000/minio/health/live; do sleep 2; done'
 
       - name: Verify (spotless check, unit + migration integrity tests, jacoco gate)
         working-directory: apps/api
