@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 The format follows Keep a Changelog; versioning follows SemVer.
 
+## [0.3.0] - 2026-08-26
+
+### Added
+- S3-compatible storage abstraction (MinIO locally, bucket auto-ensured at startup) with round-trip integration tests.
+- Resume upload endpoint for authenticated candidates: PDF/DOCX only, magic-byte content validation, configurable size caps, per-user object keys.
+- Async resume parsing pipeline: after-commit event triggers extraction on a worker pool in its own transaction; resumes transition UPLOADED → PARSING → PARSED/FAILED with parse error capture.
+- Apache Tika text extraction persisted alongside the resume (V4).
+- Skills catalog seeded via migration (V5, 110+ skills across categories); word-boundary skill matcher handling symbols and multi-word names; parsed skills attached to candidate profiles as RESUME_PARSED.
+- Frontend "My Resumes" page: multipart upload, resume list with live status polling while parsing is in flight.
+- CI provisions MinIO for storage integration tests on every push.
+
 ## [0.2.0] - 2026-08-25
 
 ### Added
