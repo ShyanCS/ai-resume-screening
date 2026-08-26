@@ -45,6 +45,7 @@ public class Resume {
     @Column(name = "file_size_bytes", nullable = false)
     private long fileSizeBytes;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ResumeStatus status;
@@ -59,6 +60,10 @@ public class Resume {
     @Setter
     @Column(name = "parsed_at")
     private Instant parsedAt;
+
+    @Setter
+    @Column(name = "content_text", columnDefinition = "text")
+    private String contentText;
 
     public Resume(User user, String storageKey, String originalFilename, String mimeType, long fileSizeBytes) {
         this.user = user;

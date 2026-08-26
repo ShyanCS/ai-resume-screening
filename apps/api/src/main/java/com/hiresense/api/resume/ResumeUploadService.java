@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +24,19 @@ public class ResumeUploadService {
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
     private final StorageService storageService;
+    private final ApplicationEventPublisher eventPublisher;
     private final long maxSizeBytes;
 
     public ResumeUploadService(
             ResumeRepository resumeRepository,
             UserRepository userRepository,
             StorageService storageService,
+            ApplicationEventPublisher eventPublisher,
             @Value("${app.resumes.max-size-bytes:10485760}") long maxSizeBytes) {
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
+        this.eventPublisher = eventPublisher;
         this.maxSizeBytes = maxSizeBytes;
     }
 
@@ -70,7 +74,9 @@ public class ResumeUploadService {
                 storageKey, new java.io.ByteArrayInputStream(content), content.length, file.getContentType());
 
         Resume resume = new Resume(user, storageKey, originalFilename, file.getContentType(), content.length);
-        return resumeRepository.save(resume);
+        Resume saved = resumeRepository.save(resume);
+        eventPublisher.publishEvent(new com.hiresense.api.resume.parsing.ResumeUploadedEvent(saved.getId()));
+        return saved;
     }
 
     @Transactional(readOnly = true)
