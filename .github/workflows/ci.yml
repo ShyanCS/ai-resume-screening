@@ -23,6 +23,18 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ROOT_USER: hiresense
+          MINIO_ROOT_PASSWORD: hiresense-secret
+        ports:
+          - "9000:9000"
+        options: >-
+          --health-cmd "mc ready local || curl -fsS http://localhost:9000/minio/health/live"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
     steps:
       - uses: actions/checkout@v4
 
