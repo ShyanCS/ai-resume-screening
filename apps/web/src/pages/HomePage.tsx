@@ -19,9 +19,14 @@ export function HomePage() {
       <Typography variant="body1" data-testid="signed-in-as">
         Signed in as {user?.email} ({user?.platformRole})
       </Typography>
-      <Button variant="outlined" onClick={handleLogout} sx={{ mt: 2 }}>
-        Sign out
-      </Button>
+      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+        <Button variant="contained" onClick={() => navigate('/resumes')}>
+          My Resumes
+        </Button>
+        <Button variant="outlined" onClick={handleLogout}>
+          Sign out
+        </Button>
+      </Box>
     </Box>
   )
 }

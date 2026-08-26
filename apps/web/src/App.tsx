@@ -6,6 +6,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { CandidateSignupPage } from './pages/CandidateSignupPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { MyResumesPage } from './pages/MyResumesPage'
 import { OrganizationSignupPage } from './pages/OrganizationSignupPage'
 
 const theme = createTheme({
@@ -29,6 +30,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/resumes"
+            element={
+              <ProtectedRoute>
+                <MyResumesPage />
               </ProtectedRoute>
             }
           />

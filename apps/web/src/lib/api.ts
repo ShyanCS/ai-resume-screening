@@ -83,6 +83,7 @@ async function doRefresh(): Promise<boolean> {
 interface RequestOptions {
   method?: string
   body?: unknown
+  formData?: FormData
 }
 
 async function request<T>(
@@ -91,7 +92,10 @@ async function request<T>(
   allowRefreshRetry: boolean,
 ): Promise<T> {
   const auth = loadStoredAuth()
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  const headers: Record<string, string> = {}
+  if (!options.formData) {
+    headers['Content-Type'] = 'application/json'
+  }
   if (auth?.accessToken && !path.startsWith('/api/v1/auth/')) {
     headers.Authorization = `Bearer ${auth.accessToken}`
   }
@@ -99,7 +103,8 @@ async function request<T>(
   const response = await fetch(`${BASE_URL}${path}`, {
     method: options.method ?? 'GET',
     headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body:
+      options.formData ?? (options.body === undefined ? undefined : JSON.stringify(options.body)),
   })
 
   if (response.status === 401 && allowRefreshRetry && !path.startsWith('/api/v1/auth/')) {
