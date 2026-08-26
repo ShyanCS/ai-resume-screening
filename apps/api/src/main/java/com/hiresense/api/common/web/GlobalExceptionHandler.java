@@ -56,6 +56,11 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(com.hiresense.api.resume.InvalidResumeFileException.class)
+    public ProblemDetail handleInvalidResumeFile(com.hiresense.api.resume.InvalidResumeFileException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public void rethrowAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
         throw ex;

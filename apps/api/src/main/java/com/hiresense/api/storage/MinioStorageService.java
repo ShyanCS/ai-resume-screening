@@ -5,8 +5,12 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;
 import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MinioStorageService implements StorageService {
+
+    private static final Logger log = LoggerFactory.getLogger(MinioStorageService.class);
 
     private final MinioClient client;
     private final String bucket;
@@ -43,8 +47,15 @@ public class MinioStorageService implements StorageService {
             client.statObject(
                     StatObjectArgs.builder().bucket(bucket).object(key).build());
             return true;
+        } catch (io.minio.errors.ErrorResponseException e) {
+            String code = e.errorResponse() != null ? e.errorResponse().code() : "";
+            log.warn("Exists check miss for key '{}' in bucket '{}': code={}", key, bucket, code);
+            if ("NoSuchKey".equals(code) || "NoSuchBucket".equals(code)) {
+                return false;
+            }
+            throw new StorageException("Exists check failed for key " + key, e);
         } catch (Exception e) {
-            return false;
+            throw new StorageException("Exists check failed for key " + key, e);
         }
     }
 }

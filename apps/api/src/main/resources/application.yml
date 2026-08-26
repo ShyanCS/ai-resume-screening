@@ -14,6 +14,10 @@ spring:
   mail:
     host: ${SPRING_MAIL_HOST:localhost}
     port: ${SPRING_MAIL_PORT:1025}
+  servlet:
+    multipart:
+      max-file-size: ${APP_RESUMES_MAX_MB:10}MB
+      max-request-size: ${APP_RESUMES_MAX_REQUEST_MB:12}MB
 app:
   base-url: ${APP_BASE_URL:http://localhost:3000}
   jwt:
@@ -27,6 +31,8 @@ app:
     access-key: ${APP_STORAGE_ACCESS_KEY:hiresense}
     secret-key: ${APP_STORAGE_SECRET_KEY:hiresense-secret}
     bucket: ${APP_STORAGE_BUCKET:resumes}
+  resumes:
+    max-size-bytes: ${APP_RESUMES_MAX_BYTES:10485760}
 server:
   port: 8080
 management:
