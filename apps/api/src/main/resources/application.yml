@@ -22,6 +22,11 @@ app:
     refresh-ttl-days: 30
     email-verification-ttl-hours: 24
     password-reset-ttl-minutes: 30
+  storage:
+    endpoint: ${APP_STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${APP_STORAGE_ACCESS_KEY:hiresense}
+    secret-key: ${APP_STORAGE_SECRET_KEY:hiresense-secret}
+    bucket: ${APP_STORAGE_BUCKET:resumes}
 server:
   port: 8080
 management:

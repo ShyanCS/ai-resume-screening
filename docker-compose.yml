@@ -53,6 +53,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hiresense
       SPRING_DATASOURCE_USERNAME: hiresense
       SPRING_DATASOURCE_PASSWORD: hiresense
+      APP_STORAGE_ENDPOINT: http://minio:9000
+      APP_STORAGE_ACCESS_KEY: hiresense
+      APP_STORAGE_SECRET_KEY: hiresense-secret
+      APP_STORAGE_BUCKET: resumes
     ports:
       - "8080:8080"
     depends_on:
