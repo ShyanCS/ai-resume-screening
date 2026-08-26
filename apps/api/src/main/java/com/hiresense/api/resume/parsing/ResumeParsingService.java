@@ -3,6 +3,9 @@ package com.hiresense.api.resume.parsing;
 import com.hiresense.api.resume.Resume;
 import com.hiresense.api.resume.ResumeRepository;
 import com.hiresense.api.resume.ResumeStatus;
+import com.hiresense.api.skill.CandidateSkillService;
+import com.hiresense.api.skill.SkillExtractionService;
+import com.hiresense.api.skill.SkillSource;
 import com.hiresense.api.storage.StorageService;
 import java.io.InputStream;
 import java.time.Instant;
@@ -20,14 +23,20 @@ public class ResumeParsingService {
     private final ResumeRepository resumeRepository;
     private final StorageService storageService;
     private final TextExtractionService textExtractionService;
+    private final SkillExtractionService skillExtractionService;
+    private final CandidateSkillService candidateSkillService;
 
     public ResumeParsingService(
             ResumeRepository resumeRepository,
             StorageService storageService,
-            TextExtractionService textExtractionService) {
+            TextExtractionService textExtractionService,
+            SkillExtractionService skillExtractionService,
+            CandidateSkillService candidateSkillService) {
         this.resumeRepository = resumeRepository;
         this.storageService = storageService;
         this.textExtractionService = textExtractionService;
+        this.skillExtractionService = skillExtractionService;
+        this.candidateSkillService = candidateSkillService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -46,7 +55,10 @@ public class ResumeParsingService {
             resume.setParsedAt(Instant.now());
             resume.setParseError(null);
             resumeRepository.save(resume);
-            log.info("Resume {} parsed, extracted {} characters", resumeId, text.length());
+
+            var matchedSkills = skillExtractionService.extractSkills(text);
+            candidateSkillService.attachSkills(resume.getUser().getId(), matchedSkills, SkillSource.RESUME_PARSED);
+            log.info("Resume {} parsed: {} chars, {} skills matched", resumeId, text.length(), matchedSkills.size());
         } catch (Exception e) {
             log.error("Parsing failed for resume {}", resumeId, e);
             resume.setStatus(ResumeStatus.FAILED);

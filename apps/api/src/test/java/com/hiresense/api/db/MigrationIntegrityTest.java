@@ -166,10 +166,13 @@ class MigrationIntegrityTest {
 
     @Test
     void skillNamesAreCaseInsensitivelyUnique() throws SQLException {
-        update("INSERT INTO skills (name, category) VALUES ('Java', 'Programming')");
+        String uniqueBase = "ProbeSkill" + System.nanoTime();
+        update("INSERT INTO skills (name, category) VALUES ('" + uniqueBase + "', 'Programming')");
 
         SQLException thrown = assertThrows(
-                SQLException.class, () -> update("INSERT INTO skills (name, category) VALUES ('java', 'Programming')"));
+                SQLException.class,
+                () -> update("INSERT INTO skills (name, category) VALUES ('" + uniqueBase.toLowerCase()
+                        + "', 'Programming')"));
         assertEquals("23505", thrown.getSQLState());
     }
 
